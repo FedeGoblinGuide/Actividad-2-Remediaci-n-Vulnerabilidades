@@ -113,7 +113,7 @@ def edit_company(company_id):
     if 'username' not in session:
         return redirect('/')
     conn = get_data_connection()
-    company = conn.execute("SELECT * FROM companies WHERE id = "+ str(company_id)).fetchone()
+    company = conn.execute("SELECT * FROM companies WHERE id = ?",(company_id)).fetchone()
     if not company:
         conn.close()
         return render_template('errors/404.html'), 404
@@ -123,7 +123,7 @@ def edit_company(company_id):
     if request.method == 'POST':
         new_name = request.form['company_name']
         new_description = request.form['description']
-        conn.execute("UPDATE companies SET name = '"+new_name+"', description = '"+new_description+"' WHERE id = "+str(company_id))
+        conn.execute("UPDATE companies SET name = ?, description = ? WHERE id = ?", (new_name, new_description, company_id))
         conn.commit()
         conn.close()
         flash("Company updated successfully.", "success")
