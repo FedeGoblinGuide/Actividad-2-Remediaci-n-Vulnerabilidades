@@ -59,18 +59,17 @@ def list_companies():
     return render_template('companies/home.html', companies=companies_list, search=search)
 
 
-
 @app.route('/companies/<int:company_id>', methods=['GET', 'POST'])
 def company_detail(company_id):
     if 'username' not in session:
         return redirect('/login')
     conn = get_data_connection()
-    company = conn.execute("SELECT * FROM companies WHERE id = " + str(company_id)).fetchone()
-    comments = conn.execute("SELECT * FROM comments WHERE company_id = " + str(company_id)).fetchall()
+    company = conn.execute("SELECT * FROM companies WHERE id = ?", (company_id)).fetchone()
+    comments = conn.execute("SELECT * FROM comments WHERE company_id = ?", (company_id)).fetchall()
     if request.method == 'POST':
         comment = request.form['comment']
         user = session.get('username')
-        conn.execute("INSERT INTO comments (company_id, user, comment) VALUES ("+str(company_id)+", '"+user+"', '"+comment+"')")
+        conn.execute("INSERT INTO comments (company_id, user, comment) VALUES (?, ?, ?)", (company_id, user, comment))
         conn.commit()
         conn.close()
         flash("Comment added successfully.", "success")
